@@ -11,9 +11,9 @@
             resultDisplay.innerText = "向伺服器驗證中...";
 
             try {
-                // 注意：本地端測試時使用 http://127.0.0.1:8000/api/spin
+                // 注意：本地端測試時使用 https://lucky-1-138i.onrender.com/
                 // 部署到伺服器後，請將這裡換成伺服器提供的真實 URL
-                const response = await fetch('http://127.0.0.1:8000/api/spin', {
+                const response = await fetch('https://lucky-1-138i.onrender.com/', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ serial: serialCode })
