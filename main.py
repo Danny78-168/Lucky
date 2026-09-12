@@ -1,8 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import random
-import string
+import requests
 
 app = FastAPI()
 
@@ -12,6 +11,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# 你的 Google Apps Script 網頁應用程式網址
+GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwJDepys_SlO9T23JnibqIQMDJ8I2Q-PiWEMJuYh50C3zux1Hegh5REku_NfQeJ3m4j/exec"
 
 # 獎項與權重設定 (總權重 1000)
 prizes = [
@@ -24,25 +26,6 @@ prizes = [
     {"index": 6, "text": "88u", "weight": 5}
 ]
 
-# 自動產生 7 位數安全序號的輔助函式 (混合大小寫英文與數字)
-def generate_secure_serials(count=20):
-    serials = {}
-    chars = string.ascii_letters + string.digits  # A-Z, a-z, 0-9
-    for _ in range(count):
-        # 產生 7 位數亂碼
-        code = ''.join(random.choices(chars, k=7))
-        serials[code] = False
-    return serials
-
-# 系統啟動時自動產生 20 組 7 位數序號
-serials_db = generate_secure_serials(20)
-
-# 在 Render 後台日誌印出這批產生的序號，方便你複製發給用戶
-print("=== 本次自動生成的 7 位數抽獎序號 ===")
-for s in serials_db.keys():
-    print(s)
-print("=======================================")
-
 class SpinRequest(BaseModel):
     serial: str
 
@@ -50,17 +33,32 @@ class SpinRequest(BaseModel):
 def spin_wheel(req: SpinRequest):
     serial = req.serial.strip()
     
+    try:
+        # 1. 從 Google 試算表取得最新序號資料庫
+        res = requests.get(f"{GOOGLE_SCRIPT_URL}?action=get_serials")
+        serials_db = res.json()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="無法連線至序號資料庫")
+
+    # 2. 驗證序號是否存在
     if serial not in serials_db:
         raise HTTPException(status_code=400, detail="無效的序號，請重新確認！")
     
+    # 3. 驗證是否已被使用
     if serials_db[serial]:
         raise HTTPException(status_code=400, detail="此序號已經抽過獎囉！")
 
+    # 4. 根據權重抽獎
+    import random
     population = [p["index"] for p in prizes]
     weights = [p["weight"] for p in prizes]
     winning_index = random.choices(population, weights=weights, k=1)[0]
 
-    serials_db[serial] = True
+    # 5. 通知 Google 試算表將該序號更新為已使用 (TRUE)
+    try:
+        requests.get(f"{GOOGLE_SCRIPT_URL}?action=use_serial&serial={serial}")
+    except:
+        pass
 
     return {
         "success": True, 
