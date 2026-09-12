@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import requests
@@ -31,8 +31,15 @@ class SpinRequest(BaseModel):
     serial: str
 
 @app.post("/api/spin")
-def spin_wheel(req: SpinRequest):
+def spin_wheel(req: SpinRequest, request: Request):
     serial = req.serial.strip()
+    
+    # 準確取得使用者真實 IP (優先讀取 Render 等 Proxy 轉發的標頭)
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        client_ip = forwarded.split(",")[0].strip()
+    else:
+        client_ip = request.client.host if request.client else "Unknown"
     
     try:
         # 1. 從 Google 試算表取得最新序號資料庫
@@ -54,9 +61,9 @@ def spin_wheel(req: SpinRequest):
     weights = [p["weight"] for p in prizes]
     winning_index = random.choices(population, weights=weights, k=1)[0]
 
-    # 5. 通知 Google 試算表將該序號更新為已使用 (TRUE)
+    # 5. 通知 Google 試算表將該序號更新為已使用 (TRUE)，並帶入真實 IP
     try:
-        requests.get(f"{GOOGLE_SCRIPT_URL}?action=use_serial&serial={serial}")
+        requests.get(f"{GOOGLE_SCRIPT_URL}?action=use_serial&serial={serial}&ip={client_ip}")
     except:
         pass
 
