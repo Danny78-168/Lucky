@@ -13,7 +13,7 @@ app.add_middleware(
 )
 
 # 你的 Google Apps Script 網頁應用程式網址
-GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwJDepys_SlO9T23JnibqIQMDJ8I2Q-PiWEMJuYh50C3zux1Hegh5REku_NfQeJ3m4j/exec"
+GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwbBLE0kJv2je0vSHl25imEXhCB_OIwV9TTiR6b4rM9fmPxgnITYYD7LjpXmmZgj9s/exec"
 
 # 獎項與權重設定 (總權重 1000)
 prizes = [
