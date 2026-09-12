@@ -1,0 +1,63 @@
+        spinBtn.addEventListener('click', async () => {
+            const serialCode = serialInput.value.trim();
+
+            if (!serialCode) {
+                alert('請先輸入抽獎序號！');
+                return;
+            }
+
+            // 鎖定按鈕與畫面狀態
+            spinBtn.disabled = true;
+            resultDisplay.innerText = "向伺服器驗證中...";
+
+            try {
+                // 注意：本地端測試時使用 http://127.0.0.1:8000/api/spin
+                // 部署到伺服器後，請將這裡換成伺服器提供的真實 URL
+                const response = await fetch('http://127.0.0.1:8000/api/spin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ serial: serialCode })
+                });
+
+                const data = await response.json();
+
+                // 驗證失敗 (序號錯誤或重複)
+                if (!response.ok) {
+                    alert(data.detail);
+                    spinBtn.disabled = false;
+                    resultDisplay.innerText = "";
+                    return;
+                }
+
+                resultDisplay.innerText = "轉動中...";
+
+                // 從伺服器取得正確的獎項索引 (0~6)
+                const winningIndex = data.index;
+                const prizeWon = data.prize;
+
+                // 計算旋轉角度 (與原本動畫邏輯相同)
+                const spins = 5; 
+                const degreesPerSlice = 360 / numSlices;
+                
+                const targetRotation = currentRotation 
+                                     + (360 * spins) 
+                                     + (360 - (currentRotation % 360)) 
+                                     - (winningIndex * degreesPerSlice) 
+                                     - (degreesPerSlice / 2); 
+
+                currentRotation = targetRotation;
+                canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+                // 停下後顯示結果
+                setTimeout(() => {
+                    resultDisplay.innerText = `🎉 恭喜您獲得：${prizeWon} 🎉`;
+                    // 動畫結束後不解鎖按鈕，強制必須重新輸入新序號才能再抽
+                }, 4000);
+
+            } catch (error) {
+                alert('連線伺服器失敗，請稍後再試。');
+                spinBtn.disabled = false;
+                resultDisplay.innerText = "";
+            }
+        });
+        
