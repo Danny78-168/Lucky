@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import requests
+import random
 
 app = FastAPI()
 
@@ -13,7 +14,7 @@ app.add_middleware(
 )
 
 # 你的 Google Apps Script 網頁應用程式網址
-GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwbBLE0kJv2je0vSHl25imEXhCB_OIwV9TTiR6b4rM9fmPxgnITYYD7LjpXmmZgj9s/exec"
+GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzibIdfzlaqhDXYYdEPk49vV9h-TslfXTzbnCSE7j017iMTLN-XIvP8WMIerYDaqCk9/exec"
 
 # 獎項與權重設定 (總權重 1000)
 prizes = [
@@ -49,7 +50,6 @@ def spin_wheel(req: SpinRequest):
         raise HTTPException(status_code=400, detail="此序號已經抽過獎囉！")
 
     # 4. 根據權重抽獎
-    import random
     population = [p["index"] for p in prizes]
     weights = [p["weight"] for p in prizes]
     winning_index = random.choices(population, weights=weights, k=1)[0]
