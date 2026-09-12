@@ -40,7 +40,7 @@ serials_db = generate_secure_serials(20)
 # 在 Render 後台日誌印出這批產生的序號，方便你複製發給用戶
 print("=== 本次自動生成的 7 位數抽獎序號 ===")
 for s in serials_db.keys():
-print(s)
+    print(s)
 print("=======================================")
 
 class SpinRequest(BaseModel):
