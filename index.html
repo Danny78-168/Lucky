@@ -1,3 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>專屬輪盤抽獎</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #fce4ec;
+            text-align: center;
+            padding-top: 40px;
+            margin: 0;
+        }
+        h1 { color: #d81b60; }
+        .input-section { margin-bottom: 30px; }
+        input[type="text"] {
+            padding: 10px 15px;
+            font-size: 16px;
+            border: 2px solid #f48fb1;
+            border-radius: 5px;
+            outline: none;
+            width: 250px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #d81b60;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: bold;
+        }
+        button:hover { background-color: #ad1457; }
+        button:disabled { background-color: #f8bbd0; cursor: not-allowed; }
+        .wheel-container {
+            position: relative;
+            width: 340px;
+            height: 340px;
+            margin: 0 auto;
+        }
+        .pointer {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 35px solid #d32f2f;
+            z-index: 10;
+        }
+        canvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 4s cubic-bezier(0.25, 0.1, 0.25, 1); 
+        }
+        .result-section {
+            margin-top: 30px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #d81b60;
+            min-height: 35px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🎁 專屬幸運輪盤 🎁</h1>
+    
+    <div class="input-section">
+        <input type="text" id="serialInput" placeholder="請輸入您的抽獎序號">
+        <button id="spinBtn">開始抽獎</button>
+    </div>
+
+    <div class="wheel-container">
+        <div class="pointer"></div>
+        <canvas id="wheelCanvas" width="400" height="400"></canvas>
+    </div>
+
+    <div class="result-section" id="resultDisplay"></div>
+
+    <script>
+        const prizes = [
+            { text: '1u', color: '#FFCDD2' },
+            { text: '8u', color: '#F8BBD0' },
+            { text: '18u', color: '#E1BEE7' },
+            { text: '28u', color: '#D1C4E9' },
+            { text: '38u', color: '#C5CAE9' },
+            { text: '58u', color: '#BBDEFB' },
+            { text: '88u', color: '#B2EBF2' }
+        ];
+
+        const canvas = document.getElementById('wheelCanvas');
+        const ctx = canvas.getContext('2d');
+        const spinBtn = document.getElementById('spinBtn');
+        const serialInput = document.getElementById('serialInput');
+        const resultDisplay = document.getElementById('resultDisplay');
+
+        const numSlices = prizes.length;
+        const sliceAngle = (2 * Math.PI) / numSlices;
+        let currentRotation = 0;
+
+        function drawWheel() {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = centerX;
+
+            for (let i = 0; i < numSlices; i++) {
+                const startAngle = i * sliceAngle - Math.PI / 2;
+                const endAngle = startAngle + sliceAngle;
+
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                ctx.fillStyle = prizes[i].color;
+                ctx.fill();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#fff';
+                ctx.stroke();
+
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(startAngle + sliceAngle / 2);
+                ctx.textAlign = 'right';
+                ctx.fillStyle = '#333';
+                ctx.font = 'bold 22px "Segoe UI"';
+                ctx.fillText(prizes[i].text, radius - 30, 8);
+                ctx.restore();
+            }
+        }
+
+        drawWheel();
+
         spinBtn.addEventListener('click', async () => {
             const serialCode = serialInput.value.trim();
 
@@ -6,14 +145,12 @@
                 return;
             }
 
-            // 鎖定按鈕與畫面狀態
             spinBtn.disabled = true;
             resultDisplay.innerText = "向伺服器驗證中...";
 
             try {
-                // 注意：本地端測試時使用 https://lucky-1-138i.onrender.com/
-                // 部署到伺服器後，請將這裡換成伺服器提供的真實 URL
-                const response = await fetch('https://lucky-1-138i.onrender.com/', {
+                // 已更新為你的 Render 網址，並補上 /api/spin
+                const response = await fetch('https://lucky-1-138i.onrender.com/api/spin', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ serial: serialCode })
@@ -21,7 +158,6 @@
 
                 const data = await response.json();
 
-                // 驗證失敗 (序號錯誤或重複)
                 if (!response.ok) {
                     alert(data.detail);
                     spinBtn.disabled = false;
@@ -31,11 +167,9 @@
 
                 resultDisplay.innerText = "轉動中...";
 
-                // 從伺服器取得正確的獎項索引 (0~6)
                 const winningIndex = data.index;
                 const prizeWon = data.prize;
 
-                // 計算旋轉角度 (與原本動畫邏輯相同)
                 const spins = 5; 
                 const degreesPerSlice = 360 / numSlices;
                 
@@ -48,16 +182,17 @@
                 currentRotation = targetRotation;
                 canvas.style.transform = `rotate(${currentRotation}deg)`;
 
-                // 停下後顯示結果
                 setTimeout(() => {
                     resultDisplay.innerText = `🎉 恭喜您獲得：${prizeWon} 🎉`;
-                    // 動畫結束後不解鎖按鈕，強制必須重新輸入新序號才能再抽
                 }, 4000);
 
             } catch (error) {
-                alert('連線伺服器失敗，請稍後再試。');
+                alert('連線伺服器失敗，請檢查網路或後端狀態。');
                 spinBtn.disabled = false;
                 resultDisplay.innerText = "";
             }
         });
+    </script>
+</body>
+</html>
         
