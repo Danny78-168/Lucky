@@ -12,16 +12,16 @@
             background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
             color: #ffffff;
             text-align: center;
-            padding-top: 50px;
+            padding-top: 30px;
             margin: 0;
             min-height: 100vh;
             box-sizing: border-box;
         }
         
         h1 {
-            font-size: 36px;
+            font-size: 34px;
             font-weight: 900;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -29,71 +29,11 @@
             letter-spacing: 2px;
         }
 
-        .input-section {
-            margin-bottom: 40px;
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        input[type="text"] {
-            padding: 12px 20px;
-            font-size: 16px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border: 2px solid #d4af37;
-            color: #fff;
-            border-radius: 8px;
-            outline: none;
-            width: 280px;
-            letter-spacing: 1px;
-            transition: all 0.3s;
-        }
-
-        input[type="text"]:focus {
-            background-color: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
-        }
-
-        input[type="text"]::placeholder {
-            color: #aaa;
-        }
-
-        button {
-            padding: 12px 25px;
-            font-size: 16px;
-            background: linear-gradient(135deg, #d4af37 0%, #aa771c 100%);
-            color: #000;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 900;
-            text-transform: uppercase;
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6);
-        }
-
-        button:active {
-            transform: translateY(1px);
-        }
-
-        button:disabled {
-            background: #555;
-            color: #888;
-            box-shadow: none;
-            cursor: not-allowed;
-            transform: none;
-        }
-
         .wheel-container {
             position: relative;
-            width: 360px;
-            height: 360px;
-            margin: 0 auto;
+            width: 340px;
+            height: 340px;
+            margin: 0 auto 25px auto;
             border-radius: 50%;
             border: 8px solid #333;
             box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(212, 175, 55, 0.4) inset;
@@ -140,11 +80,74 @@
             transition: transform 4s cubic-bezier(0.1, 0.7, 0.1, 1); 
         }
 
-        .result-section {
-            margin-top: 40px;
-            font-size: 28px;
+        /* 移至底部的輸入與按鈕區塊 */
+        .input-section {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        input[type="text"] {
+            padding: 12px 20px;
+            font-size: 16px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 2px solid #d4af37;
+            color: #fff;
+            border-radius: 8px;
+            outline: none;
+            width: 280px;
+            letter-spacing: 1px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus {
+            background-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+        }
+
+        input[type="text"]::placeholder {
+            color: #aaa;
+        }
+
+        button {
+            padding: 12px 35px;
+            font-size: 18px;
+            background: linear-gradient(135deg, #d4af37 0%, #aa771c 100%);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
             font-weight: 900;
-            min-height: 40px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        button:disabled {
+            background: #555;
+            color: #888;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-section {
+            margin-top: 20px;
+            font-size: 26px;
+            font-weight: 900;
+            min-height: 35px;
             color: #d4af37;
             text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
             animation: pulse 2s infinite;
@@ -161,14 +164,14 @@
 
     <h1>✨ 專屬幸運輪盤 ✨</h1>
     
-    <div class="input-section">
-        <input type="text" id="serialInput" placeholder="請輸入抽獎序號 (例: VIP01)" autocomplete="off">
-        <button id="spinBtn">立即抽獎</button>
-    </div>
-
     <div class="wheel-container">
         <div class="pointer"></div>
         <canvas id="wheelCanvas" width="400" height="400"></canvas>
+    </div>
+
+    <div class="input-section">
+        <input type="text" id="serialInput" placeholder="請輸入抽獎序號 (例: VIP01)" autocomplete="off">
+        <button id="spinBtn">立即抽獎</button>
     </div>
 
     <div class="result-section" id="resultDisplay"></div>
@@ -194,10 +197,10 @@
         const sliceAngle = (2 * Math.PI) / numSlices;
         let currentRotation = 0;
 
-        // 載入外部圖案
+        // 載入新的附加圖案
         const prizeImg = new Image();
-        prizeImg.src = 'https://cdn.phototourl.com/free/2026-09-12-41ea83bc-5d80-4e8c-8cc8-a00c6cdc0462.png';
-        prizeImg.onload = () => { drawWheel(); }; // 圖案載入完畢後重繪輪盤
+        prizeImg.src = 'https://cdn.phototourl.com/free/2026-09-12-a9504ffd-9bc9-472f-9734-9f404f28e694.png';
+        prizeImg.onload = () => { drawWheel(); };
 
         function drawWheel() {
             const centerX = canvas.width / 2;
@@ -222,25 +225,29 @@
                 ctx.translate(centerX, centerY);
                 ctx.rotate(startAngle + sliceAngle / 2);
                 
-                // 設定字體變大
                 ctx.textAlign = 'right';
-                ctx.fillStyle = '#ffffff';
-                ctx.font = '900 32px "Noto Sans TC"'; // 字體放大並加粗
+                ctx.font = '900 32px "Noto Sans TC"';
                 
-                ctx.shadowColor = "rgba(0,0,0,0.5)";
+                // 設定金額文字為金黃色漸層效果
+                const gradient = ctx.createLinearGradient(0, -20, 0, 20);
+                gradient.addColorStop(0, '#fcf6ba');
+                gradient.addColorStop(0.5, '#d4af37');
+                gradient.addColorStop(1, '#aa771c');
+                ctx.fillStyle = gradient;
+                
+                ctx.shadowColor = "rgba(0,0,0,0.6)";
                 ctx.shadowBlur = 4;
                 ctx.shadowOffsetX = 2;
                 ctx.shadowOffsetY = 2;
                 
-                // 將文字往內縮，留空間給右側圖案
+                // 畫文字
                 ctx.fillText(prizes[i].text, radius - 60, 12);
                 
-                // 關閉圖案的陰影以免圖片邊緣變黑
                 ctx.shadowColor = "transparent";
                 
-                // 繪製附加圖案 (設定寬高為32x32)
+                // 圖片大小調整為與文字相符 (32x32)，並放在文字右側
                 if (prizeImg.complete) {
-                    ctx.drawImage(prizeImg, radius - 52, -16, 32, 32);
+                    ctx.drawImage(prizeImg, radius - 52, -18, 32, 32);
                 }
                 
                 ctx.restore();
