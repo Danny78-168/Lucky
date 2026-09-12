@@ -100,7 +100,6 @@
             background: #111;
         }
 
-        /* 外圈發光裝飾 */
         .wheel-container::before {
             content: '';
             position: absolute;
@@ -175,7 +174,6 @@
     <div class="result-section" id="resultDisplay"></div>
 
     <script>
-        // 換上更具質感的莫蘭迪色/深色調搭配金色文字
         const prizes = [
             { text: '1u', color: '#2c3e50' },
             { text: '8u', color: '#e74c3c' },
@@ -196,6 +194,11 @@
         const sliceAngle = (2 * Math.PI) / numSlices;
         let currentRotation = 0;
 
+        // 載入外部圖案
+        const prizeImg = new Image();
+        prizeImg.src = 'https://cdn.phototourl.com/free/2026-09-12-41ea83bc-5d80-4e8c-8cc8-a00c6cdc0462.png';
+        prizeImg.onload = () => { drawWheel(); }; // 圖案載入完畢後重繪輪盤
+
         function drawWheel() {
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
@@ -211,7 +214,6 @@
                 ctx.fillStyle = prizes[i].color;
                 ctx.fill();
                 
-                // 增加扇形分隔線
                 ctx.lineWidth = 3;
                 ctx.strokeStyle = '#222';
                 ctx.stroke();
@@ -219,22 +221,31 @@
                 ctx.save();
                 ctx.translate(centerX, centerY);
                 ctx.rotate(startAngle + sliceAngle / 2);
-                ctx.textAlign = 'right';
-                // 文字改為亮色系
-                ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 24px "Noto Sans TC"';
                 
-                // 為文字增加陰影增加層次感
+                // 設定字體變大
+                ctx.textAlign = 'right';
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '900 32px "Noto Sans TC"'; // 字體放大並加粗
+                
                 ctx.shadowColor = "rgba(0,0,0,0.5)";
                 ctx.shadowBlur = 4;
                 ctx.shadowOffsetX = 2;
                 ctx.shadowOffsetY = 2;
                 
-                ctx.fillText(prizes[i].text, radius - 40, 8);
+                // 將文字往內縮，留空間給右側圖案
+                ctx.fillText(prizes[i].text, radius - 60, 12);
+                
+                // 關閉圖案的陰影以免圖片邊緣變黑
+                ctx.shadowColor = "transparent";
+                
+                // 繪製附加圖案 (設定寬高為32x32)
+                if (prizeImg.complete) {
+                    ctx.drawImage(prizeImg, radius - 52, -16, 32, 32);
+                }
+                
                 ctx.restore();
             }
             
-            // 畫中心點裝飾圓
             ctx.beginPath();
             ctx.arc(centerX, centerY, 25, 0, 2 * Math.PI);
             ctx.fillStyle = '#111';
@@ -278,7 +289,7 @@
 
                 const winningIndex = data.index;
                 const prizeWon = data.prize;
-                const spins = 8; // 增加旋轉圈數讓動畫更刺激
+                const spins = 8; 
                 const degreesPerSlice = 360 / numSlices;
                 
                 const targetRotation = currentRotation 
