@@ -162,7 +162,7 @@
 </head>
 <body>
 
-    <h1>✨ 專屬幸運輪盤 ✨</h1>
+    <h1>✨ 輪盤抽獎 ✨</h1>
     
     <div class="wheel-container">
         <div class="pointer"></div>
@@ -170,6 +170,9 @@
     </div>
 
     <div class="input-section">
+        <!-- 新增會員帳號輸入框 -->
+        <input type="text" id="accountInput" placeholder="請輸入會員帳號" autocomplete="off">
+        <!-- 抽獎序號輸入框 -->
         <input type="text" id="serialInput" placeholder="請輸入抽獎序號" autocomplete="off">
         <button id="spinBtn">立即抽獎</button>
     </div>
@@ -190,6 +193,7 @@
         const canvas = document.getElementById('wheelCanvas');
         const ctx = canvas.getContext('2d');
         const spinBtn = document.getElementById('spinBtn');
+        const accountInput = document.getElementById('accountInput');
         const serialInput = document.getElementById('serialInput');
         const resultDisplay = document.getElementById('resultDisplay');
 
@@ -197,7 +201,6 @@
         const sliceAngle = (2 * Math.PI) / numSlices;
         let currentRotation = 0;
 
-        // 載入新的附加圖案
         const prizeImg = new Image();
         prizeImg.src = 'https://cdn.phototourl.com/free/2026-09-12-a9504ffd-9bc9-472f-9734-9f404f28e694.png';
         prizeImg.onload = () => { drawWheel(); };
@@ -228,7 +231,6 @@
                 ctx.textAlign = 'right';
                 ctx.font = '900 32px "Noto Sans TC"';
                 
-                // 設定金額文字為金黃色漸層效果
                 const gradient = ctx.createLinearGradient(0, -20, 0, 20);
                 gradient.addColorStop(0, '#fcf6ba');
                 gradient.addColorStop(0.5, '#d4af37');
@@ -240,12 +242,10 @@
                 ctx.shadowOffsetX = 2;
                 ctx.shadowOffsetY = 2;
                 
-                // 畫文字
                 ctx.fillText(prizes[i].text, radius - 60, 12);
                 
                 ctx.shadowColor = "transparent";
                 
-                // 圖片大小調整為與文字相符 (32x32)，並放在文字右側
                 if (prizeImg.complete) {
                     ctx.drawImage(prizeImg, radius - 52, -18, 32, 32);
                 }
@@ -265,7 +265,13 @@
         drawWheel();
 
         spinBtn.addEventListener('click', async () => {
+            const account = accountInput.value.trim();
             const serialCode = serialInput.value.trim();
+
+            if (!account) {
+                alert('請先輸入會員帳號！');
+                return;
+            }
 
             if (!serialCode) {
                 alert('請先輸入抽獎序號！');
@@ -280,7 +286,7 @@
                 const response = await fetch('https://lucky-1-138i.onrender.com/api/spin', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ serial: serialCode })
+                    body: JSON.stringify({ account: account, serial: serialCode })
                 });
 
                 const data = await response.json();
