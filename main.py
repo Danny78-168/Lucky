@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import requests
 import random
+import urllib.parse
 
 app = FastAPI()
 
@@ -13,8 +14,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 你的 Google Apps Script 網頁應用程式網址
-GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwEyDF9UkMAd_-C3OFq93M9iwI39zOqXzGM9ZdOE2VehOhG58K5tQ4zxHQxSpxhtZA3/exec"
+# 你的 Google Apps Script 網頁應用程式網址 (已更新為最新版)
+GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwF_d3TQt8JmrZneqP3kW0jIV9BQXTHIepcK3App8gwxR-1b57phC4ZUZhcfxL-ctiw/exec"
 
 # 獎項與權重設定 (總權重 1000)
 prizes = [
@@ -28,13 +29,18 @@ prizes = [
 ]
 
 class SpinRequest(BaseModel):
+    account: str
     serial: str
 
 @app.post("/api/spin")
 def spin_wheel(req: SpinRequest, request: Request):
+    account = req.account.strip()
     serial = req.serial.strip()
     
-    # 準確取得使用者真實 IP (優先讀取 Render 等 Proxy 轉發的標頭)
+    if not account:
+        raise HTTPException(status_code=400, detail="請輸入會員帳號！")
+
+    # 準確取得使用者真實 IP (支援 Render 代理轉發)
     forwarded = request.headers.get("x-forwarded-for")
     if forwarded:
         client_ip = forwarded.split(",")[0].strip()
@@ -60,15 +66,18 @@ def spin_wheel(req: SpinRequest, request: Request):
     population = [p["index"] for p in prizes]
     weights = [p["weight"] for p in prizes]
     winning_index = random.choices(population, weights=weights, k=1)[0]
+    prize_won = prizes[winning_index]["text"]
 
-    # 5. 通知 Google 試算表將該序號更新為已使用 (TRUE)，並帶入真實 IP
+    # 5. 通知 Google 試算表將序號更新為已使用，並完整帶入：IP、會員帳號、中獎金額
     try:
-        requests.get(f"{GOOGLE_SCRIPT_URL}?action=use_serial&serial={serial}&ip={client_ip}")
+        encoded_account = urllib.parse.quote(account)
+        encoded_prize = urllib.parse.quote(prize_won)
+        requests.get(f"{GOOGLE_SCRIPT_URL}?action=use_serial&serial={serial}&account={encoded_account}&ip={client_ip}&prize={encoded_prize}")
     except:
         pass
 
     return {
         "success": True, 
-        "prize": prizes[winning_index]["text"], 
+        "prize": prize_won, 
         "index": winning_index
     }
