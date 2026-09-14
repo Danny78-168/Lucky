@@ -3,191 +3,335 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>輪盤抽獎</title>
+    <title>「幸運儲值」大抽獎</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;900&family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+
+        :root {
+            --bg-color: #0b2229;
+            --gold-primary: #e6ca65;
+            --gold-light: #fff3a8;
+            --gold-dark: #987224;
+            --panel-bg: rgba(10, 31, 37, 0.85);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         body {
             font-family: 'Noto Sans TC', sans-serif;
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            background: radial-gradient(circle at 50% 30%, #16404d 0%, #0c232a 60%, #061216 100%);
             color: #ffffff;
             text-align: center;
-            padding-top: 30px;
-            margin: 0;
+            padding: 20px 15px 40px 15px;
             min-height: 100vh;
-            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-        
-        h1 {
-            font-size: 34px;
+
+        /* 整個活動看板外框裝飾 */
+        .main-wrapper {
+            max-width: 440px;
+            width: 100%;
+            background: rgba(13, 38, 46, 0.7);
+            border: 2px solid rgba(212, 175, 55, 0.4);
+            border-radius: 20px;
+            padding: 25px 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6), inset 0 0 15px rgba(212, 175, 55, 0.15);
+            position: relative;
+        }
+
+        /* 主標題 */
+        .main-title {
+            font-family: 'Noto Serif TC', serif;
+            font-size: 32px;
             font-weight: 900;
-            margin-bottom: 20px;
-            background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+            background: linear-gradient(180deg, #fff9d2 0%, #e5c365 45%, #9d6f1f 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.7));
             letter-spacing: 2px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .sparkle {
+            color: #f7d377;
+            font-size: 22px;
+            -webkit-text-fill-color: initial;
+            filter: drop-shadow(0 0 6px #f7d377);
+        }
+
+        /* 儲值門檻橫額 */
+        .promo-banner {
+            display: inline-block;
+            background: linear-gradient(180deg, #10333d 0%, #0a1f26 100%);
+            border: 1.5px solid #d4af37;
+            border-radius: 30px;
+            padding: 6px 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4), inset 0 0 8px rgba(212, 175, 55, 0.3);
+        }
+
+        .promo-banner span {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            background: linear-gradient(90deg, #fff3a8, #d4af37, #fff3a8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* 輪盤外圍容器與跑馬燈效果 */
+        .wheel-outer {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            margin: 0 auto 25px auto;
+            border-radius: 50%;
+            padding: 12px;
+            background: radial-gradient(circle, #2b2b2b 60%, #151515 100%);
+            box-shadow: 0 0 0 3px #8e702c, 0 8px 30px rgba(0,0,0,0.8);
+        }
+
+        /* 圓框周圍燈泡光點裝飾 */
+        .wheel-outer::before {
+            content: '';
+            position: absolute;
+            top: 3px; left: 3px; right: 3px; bottom: 3px;
+            border-radius: 50%;
+            border: 2px dashed rgba(255, 230, 150, 0.7);
+            pointer-events: none;
         }
 
         .wheel-container {
             position: relative;
-            width: 340px;
-            height: 340px;
-            margin: 0 auto 25px auto;
+            width: 100%;
+            height: 100%;
             border-radius: 50%;
-            border: 8px solid #333;
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(212, 175, 55, 0.4) inset;
-            background: #111;
+            overflow: visible;
         }
 
-        .wheel-container::before {
-            content: '';
-            position: absolute;
-            top: -12px; left: -12px; right: -12px; bottom: -12px;
-            border: 2px solid rgba(212, 175, 55, 0.6);
-            border-radius: 50%;
-            pointer-events: none;
-        }
-
+        /* 頂部指針 */
         .pointer {
             position: absolute;
-            top: -20px;
+            top: -24px;
             left: 50%;
             transform: translateX(-50%);
             width: 0;
             height: 0;
-            border-left: 20px solid transparent;
-            border-right: 20px solid transparent;
-            border-top: 40px solid #ff3366;
-            z-index: 10;
-            filter: drop-shadow(0 4px 4px rgba(0,0,0,0.5));
+            border-left: 16px solid transparent;
+            border-right: 16px solid transparent;
+            border-top: 36px solid #ff2a55;
+            z-index: 20;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));
         }
 
         .pointer::after {
             content: '';
             position: absolute;
-            top: -40px;
-            left: -15px;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-top: 30px solid #cc0033;
+            top: -36px;
+            left: -10px;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 22px solid #b80028;
         }
 
         canvas {
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            transition: transform 4s cubic-bezier(0.1, 0.7, 0.1, 1); 
+            transition: transform 4.5s cubic-bezier(0.15, 0.9, 0.2, 1); 
+            display: block;
         }
 
-        /* 移至底部的輸入與按鈕區塊 */
+        /* 輸入區塊 */
         .input-section {
-            margin-top: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
+            width: 100%;
+            padding: 0 10px;
+        }
+
+        .input-wrapper {
+            width: 100%;
+            max-width: 320px;
+            background: linear-gradient(180deg, #f5ebd2 0%, #e2ce9f 100%);
+            border-radius: 10px;
+            padding: 3px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+        }
+
+        .input-wrapper-inner {
+            border: 1.5px dashed #a67c33;
+            border-radius: 8px;
+            padding: 2px;
         }
 
         input[type="text"] {
-            padding: 12px 20px;
+            width: 100%;
+            padding: 10px 15px;
             font-size: 16px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border: 2px solid #d4af37;
-            color: #fff;
-            border-radius: 8px;
+            font-weight: 700;
+            background: transparent;
+            border: none;
+            color: #4a330a;
             outline: none;
-            width: 280px;
             letter-spacing: 1px;
             text-align: center;
-            transition: all 0.3s;
-        }
-
-        input[type="text"]:focus {
-            background-color: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+            font-family: inherit;
         }
 
         input[type="text"]::placeholder {
-            color: #aaa;
+            color: #8f7447;
+            font-weight: 500;
         }
 
-        button {
-            padding: 12px 35px;
-            font-size: 18px;
-            background: linear-gradient(135deg, #d4af37 0%, #aa771c 100%);
-            color: #000;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
+        /* 按鈕風格 */
+        button#spinBtn {
+            margin-top: 6px;
+            width: 100%;
+            max-width: 220px;
+            padding: 14px 20px;
+            font-size: 20px;
             font-weight: 900;
-            text-transform: uppercase;
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
-            transition: transform 0.2s, box-shadow 0.2s;
+            letter-spacing: 2px;
+            color: #4d2b00;
+            background: linear-gradient(180deg, #ffef96 0%, #e7b538 45%, #b57a12 100%);
+            border: 2px solid #fff5b3;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5), inset 0 2px 2px rgba(255,255,255,0.8);
+            transition: all 0.2s ease;
         }
 
-        button:hover {
+        button#spinBtn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6);
+            box-shadow: 0 8px 20px rgba(231, 181, 56, 0.4);
         }
 
-        button:active {
-            transform: translateY(1px);
+        button#spinBtn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.7);
         }
 
-        button:disabled {
-            background: #555;
-            color: #888;
+        button#spinBtn:disabled {
+            background: linear-gradient(180deg, #a0a0a0, #666);
+            color: #333;
+            border-color: #888;
             box-shadow: none;
             cursor: not-allowed;
             transform: none;
         }
 
+        /* 抽獎結果顯示 */
         .result-section {
-            margin-top: 20px;
-            font-size: 26px;
+            margin-top: 15px;
+            font-size: 22px;
             font-weight: 900;
-            min-height: 35px;
-            color: #d4af37;
-            text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
-            animation: pulse 2s infinite;
+            min-height: 32px;
+            color: #ffe685;
+            text-shadow: 0 0 12px rgba(255, 230, 133, 0.7);
         }
 
-        @keyframes pulse {
-            0% { opacity: 0.8; }
-            50% { opacity: 1; text-shadow: 0 0 20px rgba(212, 175, 55, 0.8); }
-            100% { opacity: 0.8; }
+        /* 底部活動規則說明區 */
+        .rules-card {
+            margin-top: 25px;
+            background: rgba(4, 17, 21, 0.75);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            border-radius: 12px;
+            padding: 15px 12px;
+            text-align: center;
+            font-size: 13px;
+            line-height: 1.8;
+            color: #b7d1d9;
+            position: relative;
+        }
+
+        .rules-card::before, .rules-card::after {
+            content: "◆";
+            position: absolute;
+            color: #d4af37;
+            font-size: 10px;
+        }
+        .rules-card::before { top: 4px; left: 8px; }
+        .rules-card::after { bottom: 4px; right: 8px; }
+
+        .rules-card .rules-title {
+            color: #f3d47d;
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 4px;
         }
     </style>
 </head>
 <body>
 
-    <h1>✨ 輪盤抽獎 ✨</h1>
-    
-    <div class="wheel-container">
-        <div class="pointer"></div>
-        <canvas id="wheelCanvas" width="400" height="400"></canvas>
-    </div>
+    <div class="main-wrapper">
+        <!-- 標題 -->
+        <h1 class="main-title">
+            <span class="sparkle">✦</span>「幸運儲值」大抽獎<span class="sparkle">✦</span>
+        </h1>
 
-    <div class="input-section">
-        <!-- 新增會員帳號輸入框 -->
-        <input type="text" id="accountInput" placeholder="請輸入會員帳號" autocomplete="off">
-        <!-- 抽獎序號輸入框 -->
-        <input type="text" id="serialInput" placeholder="請輸入抽獎序號" autocomplete="off">
-        <button id="spinBtn">立即抽獎</button>
-    </div>
+        <!-- 儲值門檻標籤 -->
+        <div class="promo-banner">
+            <span>◆ 每日滿額儲值 200U (USDT) ◆</span>
+        </div>
+        
+        <!-- 輪盤主體 -->
+        <div class="wheel-outer">
+            <div class="pointer"></div>
+            <div class="wheel-container">
+                <canvas id="wheelCanvas" width="400" height="400"></canvas>
+            </div>
+        </div>
 
-    <div class="result-section" id="resultDisplay"></div>
+        <!-- 輸入與抽獎按鈕 -->
+        <div class="input-section">
+            <div class="input-wrapper">
+                <div class="input-wrapper-inner">
+                    <input type="text" id="accountInput" placeholder="請輸入會員帳號" autocomplete="off">
+                </div>
+            </div>
+
+            <div class="input-wrapper">
+                <div class="input-wrapper-inner">
+                    <input type="text" id="serialInput" placeholder="請輸入抽獎序號" autocomplete="off">
+                </div>
+            </div>
+
+            <button id="spinBtn">立即抽獎</button>
+        </div>
+
+        <div class="result-section" id="resultDisplay"></div>
+
+        <!-- 底部活動規則 -->
+        <div class="rules-card">
+            <div class="rules-title">活動規則說明</div>
+            <div>單日滿額儲值 200U 即可獲得 1 次抽獎序號</div>
+            <div style="color: #e5a443; font-weight: bold;">序號限當日使用，逾期失效作廢</div>
+            <div style="font-size: 11px; opacity: 0.7; margin-top: 4px;">本活動最終解釋權歸本平台所有</div>
+        </div>
+    </div>
 
     <script>
         const prizes = [
-            { text: '1u', color: '#2c3e50' },
-            { text: '8u', color: '#e74c3c' },
-            { text: '18u', color: '#34495e' },
-            { text: '28u', color: '#d35400' },
-            { text: '38u', color: '#16a085' },
-            { text: '58u', color: '#8e44ad' },
-            { text: '88u', color: '#f39c12' }
+            { text: '1u', color: '#1f2e3d' },
+            { text: '8u', color: '#d93829' },
+            { text: '18u', color: '#27384a' },
+            { text: '28u', color: '#d45d00' },
+            { text: '38u', color: '#108970' },
+            { text: '58u', color: '#783594' },
+            { text: '88u', color: '#e68a00' }
         ];
 
         const canvas = document.getElementById('wheelCanvas');
@@ -220,10 +364,11 @@
                 ctx.fillStyle = prizes[i].color;
                 ctx.fill();
                 
-                ctx.lineWidth = 3;
-                ctx.strokeStyle = '#222';
+                ctx.lineWidth = 2.5;
+                ctx.strokeStyle = '#181818';
                 ctx.stroke();
 
+                // 扇形文字與幣別圖標
                 ctx.save();
                 ctx.translate(centerX, centerY);
                 ctx.rotate(startAngle + sliceAngle / 2);
@@ -232,13 +377,13 @@
                 ctx.font = '900 32px "Noto Sans TC"';
                 
                 const gradient = ctx.createLinearGradient(0, -20, 0, 20);
-                gradient.addColorStop(0, '#fcf6ba');
-                gradient.addColorStop(0.5, '#d4af37');
-                gradient.addColorStop(1, '#aa771c');
+                gradient.addColorStop(0, '#fff7c2');
+                gradient.addColorStop(0.5, '#e0b84c');
+                gradient.addColorStop(1, '#9e6b18');
                 ctx.fillStyle = gradient;
                 
-                ctx.shadowColor = "rgba(0,0,0,0.6)";
-                ctx.shadowBlur = 4;
+                ctx.shadowColor = "rgba(0,0,0,0.7)";
+                ctx.shadowBlur = 5;
                 ctx.shadowOffsetX = 2;
                 ctx.shadowOffsetY = 2;
                 
@@ -247,14 +392,15 @@
                 ctx.shadowColor = "transparent";
                 
                 if (prizeImg.complete) {
-                    ctx.drawImage(prizeImg, radius - 52, -18, 32, 32);
+                    ctx.drawImage(prizeImg, radius - 52, -16, 32, 32);
                 }
                 
                 ctx.restore();
             }
             
+            // 輪盤中心黑色金邊圓盤
             ctx.beginPath();
-            ctx.arc(centerX, centerY, 25, 0, 2 * Math.PI);
+            ctx.arc(centerX, centerY, 24, 0, 2 * Math.PI);
             ctx.fillStyle = '#111';
             ctx.fill();
             ctx.lineWidth = 4;
@@ -280,7 +426,6 @@
 
             spinBtn.disabled = true;
             resultDisplay.innerText = "驗證中...";
-            resultDisplay.style.animation = "none";
 
             try {
                 const response = await fetch('https://lucky-1-138i.onrender.com/api/spin', {
@@ -316,8 +461,8 @@
 
                 setTimeout(() => {
                     resultDisplay.innerText = `🎉 恭喜獲得：${prizeWon} 🎉`;
-                    resultDisplay.style.animation = "pulse 2s infinite";
-                }, 4000);
+                    spinBtn.disabled = false;
+                }, 4500);
 
             } catch (error) {
                 alert('連線伺服器失敗，請檢查網路或後端狀態。');
