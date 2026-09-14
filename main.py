@@ -14,18 +14,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 你的 Google Apps Script 網頁應用程式網址 (已更新為最新版)
+# 你的 Google Apps Script 網頁應用程式網址
 GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwT2qt9tgnOqysXKMHgp5ufieLyQ8WV2UvR6oo4VfPn65B6RZmLusmrAd709vRD_fKa/exec"
 
-# 獎項與權重設定 (總權重 1000)
+# 新的獎項與權重設定 (總權重 1000)
 prizes = [
-    {"index": 0, "text": "1u", "weight": 500},
-    {"index": 1, "text": "8u", "weight": 250},
-    {"index": 2, "text": "18u", "weight": 120},
-    {"index": 3, "text": "28u", "weight": 70},
-    {"index": 4, "text": "38u", "weight": 40},
-    {"index": 5, "text": "58u", "weight": 15},
-    {"index": 6, "text": "88u", "weight": 5}
+    {"index": 0, "text": "8u", "weight": 450},   # 機率 45.0%
+    {"index": 1, "text": "18u", "weight": 250},  # 機率 25.0%
+    {"index": 2, "text": "38u", "weight": 180},  # 機率 18.0%
+    {"index": 3, "text": "58u", "weight": 80},   # 機率 8.0%
+    {"index": 4, "text": "128u", "weight": 20},  # 機率 2.0%
+    {"index": 5, "text": "188u", "weight": 15},  # 機率 1.5%
+    {"index": 6, "text": "288u", "weight": 5}    # 機率 0.5%
 ]
 
 class SpinRequest(BaseModel):
@@ -81,3 +81,4 @@ def spin_wheel(req: SpinRequest, request: Request):
         "prize": prize_won, 
         "index": winning_index
     }
+    
