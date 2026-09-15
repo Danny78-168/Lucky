@@ -101,7 +101,6 @@
             box-shadow: 0 0 0 3px #8e702c, 0 8px 30px rgba(0,0,0,0.8);
         }
 
-        /* 圓框周圍燈泡光點裝飾 */
         .wheel-outer::before {
             content: '';
             position: absolute;
@@ -233,14 +232,112 @@
             transform: none;
         }
 
-        /* 抽獎結果顯示 */
         .result-section {
             margin-top: 15px;
+            font-size: 18px;
+            font-weight: 700;
+            min-height: 24px;
+            color: #b7d1d9;
+        }
+
+        /* 彈窗背景遮罩 */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* 彈窗主體 */
+        .modal-content {
+            background: linear-gradient(180deg, #10333d 0%, #07191f 100%);
+            border: 2.5px solid #d4af37;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 360px;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(212, 175, 55, 0.2);
+            transform: scale(0.8);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-title {
+            font-family: 'Noto Serif TC', serif;
             font-size: 22px;
+            color: #fff3a8;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+
+        /* 大大的中獎金額顯示 */
+        .modal-prize {
+            font-size: 52px;
             font-weight: 900;
-            min-height: 32px;
-            color: #ffe685;
-            text-shadow: 0 0 12px rgba(255, 230, 133, 0.7);
+            background: linear-gradient(180deg, #fff9d2 0%, #ffd700 50%, #ff8c00 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 4px 10px rgba(255, 215, 0, 0.5));
+            margin: 10px 0 20px 0;
+            letter-spacing: 2px;
+        }
+
+        /* 代理聯繫區塊 */
+        .modal-agent {
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px dashed #d4af37;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 20px;
+        }
+
+        .modal-agent-text {
+            font-size: 14px;
+            color: #b7d1d9;
+            margin-bottom: 4px;
+        }
+
+        .modal-agent-id {
+            font-size: 20px;
+            font-weight: 900;
+            color: #55ffcc;
+            letter-spacing: 1px;
+            text-shadow: 0 0 8px rgba(85, 255, 204, 0.4);
+        }
+
+        /* 關閉彈窗按鈕 */
+        .modal-btn {
+            width: 100%;
+            padding: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #4d2b00;
+            background: linear-gradient(180deg, #ffef96 0%, #e7b538 100%);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            transition: opacity 0.2s;
+        }
+
+        .modal-btn:hover {
+            opacity: 0.9;
         }
 
         /* 底部活動規則說明區 */
@@ -318,13 +415,27 @@
         <div class="rules-card">
             <div class="rules-title">活動規則說明</div>
             <div>單日滿額儲值 200U 即可獲得 1 次抽獎序號</div>
-            <div style="color: #e5a443; font-weight: bold;">序號限當日使用，逾期失效作廢，中獎後聯繫@osc168派發</div>
+            <div style="color: #e5a443; font-weight: bold;">序號限當日使用，逾期失效作廢</div>
             <div style="font-size: 11px; opacity: 0.7; margin-top: 4px;">本活動最終解釋權歸本平台所有</div>
         </div>
     </div>
 
+    <!-- 中獎彈窗 (Modal) -->
+    <div class="modal-overlay" id="resultModal">
+        <div class="modal-content">
+            <div class="modal-title">🎉 恭喜您中獎啦！ 🎉</div>
+            <div class="modal-prize" id="modalPrizeText">88u</div>
+            
+            <div class="modal-agent">
+                <div class="modal-agent-text">請截圖聯繫代理派發彩金</div>
+                <div class="modal-agent-id">@OSC168</div>
+            </div>
+
+            <button class="modal-btn" onclick="closeModal()">確定</button>
+        </div>
+    </div>
+
     <script>
-        // 與後端完全同步的 7 個獎項 (8u, 18u, 38u, 58u, 88u, 128u, 288u)
         const prizes = [
             { text: '8u', color: '#1f2e3d' },
             { text: '18u', color: '#d93829' },
@@ -341,6 +452,8 @@
         const accountInput = document.getElementById('accountInput');
         const serialInput = document.getElementById('serialInput');
         const resultDisplay = document.getElementById('resultDisplay');
+        const resultModal = document.getElementById('resultModal');
+        const modalPrizeText = document.getElementById('modalPrizeText');
 
         const numSlices = prizes.length;
         const sliceAngle = (2 * Math.PI) / numSlices;
@@ -369,7 +482,6 @@
                 ctx.strokeStyle = '#181818';
                 ctx.stroke();
 
-                // 扇形文字與幣別圖標
                 ctx.save();
                 ctx.translate(centerX, centerY);
                 ctx.rotate(startAngle + sliceAngle / 2);
@@ -399,7 +511,6 @@
                 ctx.restore();
             }
             
-            // 輪盤中心黑色金邊圓盤
             ctx.beginPath();
             ctx.arc(centerX, centerY, 24, 0, 2 * Math.PI);
             ctx.fillStyle = '#111';
@@ -410,6 +521,10 @@
         }
 
         drawWheel();
+
+        function closeModal() {
+            resultModal.classList.remove('active');
+        }
 
         spinBtn.addEventListener('click', async () => {
             const account = accountInput.value.trim();
@@ -461,7 +576,9 @@
                 canvas.style.transform = `rotate(${currentRotation}deg)`;
 
                 setTimeout(() => {
-                    resultDisplay.innerText = `🎉 恭喜獲得：${prizeWon} 🎉`;
+                    resultDisplay.innerText = `🎉 恭喜獲得：${prizeWon}`;
+                    modalPrizeText.innerText = prizeWon;
+                    resultModal.classList.add('active'); // 顯示彈窗
                     spinBtn.disabled = false;
                 }, 4500);
 
