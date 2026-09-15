@@ -75,18 +75,27 @@
             background: linear-gradient(180deg, #10333d 0%, #0a1f26 100%);
             border: 1.5px solid #d4af37;
             border-radius: 30px;
-            padding: 6px 20px;
+            padding: 8px 20px;
             margin-bottom: 25px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4), inset 0 0 8px rgba(212, 175, 55, 0.3);
         }
 
         .promo-banner span {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 700;
             letter-spacing: 1px;
             background: linear-gradient(90deg, #fff3a8, #d4af37, #fff3a8);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            display: block;
+        }
+
+        .promo-banner .limit-text {
+            font-size: 13px;
+            color: #ff99a8;
+            margin-top: 2px;
+            -webkit-text-fill-color: initial;
+            font-weight: bold;
         }
 
         /* 輪盤外圍容器與跑馬燈效果 */
@@ -286,7 +295,6 @@
             letter-spacing: 1px;
         }
 
-        /* 大大的中獎金額顯示 */
         .modal-prize {
             font-size: 52px;
             font-weight: 900;
@@ -298,7 +306,6 @@
             letter-spacing: 2px;
         }
 
-        /* 代理聯繫區塊 */
         .modal-agent {
             background: rgba(0, 0, 0, 0.35);
             border: 1px dashed #d4af37;
@@ -321,7 +328,6 @@
             text-shadow: 0 0 8px rgba(85, 255, 204, 0.4);
         }
 
-        /* 關閉彈窗按鈕 */
         .modal-btn {
             width: 100%;
             padding: 12px;
@@ -379,9 +385,10 @@
             <span class="sparkle">✦</span>「幸運儲值」大抽獎<span class="sparkle">✦</span>
         </h1>
 
-        <!-- 儲值門檻標籤 -->
+        <!-- 儲值門檻標籤 (加註每人每日限抽 1 次) -->
         <div class="promo-banner">
             <span>◆ 每日滿額儲值 200U (USDT) ◆</span>
+            <div class="limit-text">※ 每日每帳號限抽 1 次 ※</div>
         </div>
         
         <!-- 輪盤主體 -->
@@ -411,10 +418,11 @@
 
         <div class="result-section" id="resultDisplay"></div>
 
-        <!-- 底部活動規則 -->
+        <!-- 底部活動規則 (加註每人每日限抽 1 次) -->
         <div class="rules-card">
             <div class="rules-title">活動規則說明</div>
             <div>單日滿額儲值 200U 即可獲得 1 次抽獎序號</div>
+            <div style="color: #ff99a8; font-weight: bold;">每日每帳號限抽 1 次，序號限當日有效</div>
             <div style="color: #e5a443; font-weight: bold;">序號限當日使用，逾期失效作廢</div>
             <div style="font-size: 11px; opacity: 0.7; margin-top: 4px;">本活動最終解釋權歸本平台所有</div>
         </div>
@@ -428,7 +436,7 @@
             
             <div class="modal-agent">
                 <div class="modal-agent-text">請截圖聯繫代理派發彩金</div>
-                <div class="modal-agent-id">LINE:@OSC168</div>
+                <div class="modal-agent-id">@OSC168</div>
             </div>
 
             <button class="modal-btn" onclick="closeModal()">確定</button>
@@ -578,7 +586,7 @@
                 setTimeout(() => {
                     resultDisplay.innerText = `🎉 恭喜獲得：${prizeWon}`;
                     modalPrizeText.innerText = prizeWon;
-                    resultModal.classList.add('active'); // 顯示彈窗
+                    resultModal.classList.add('active');
                     spinBtn.disabled = false;
                 }, 4500);
 
